@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Trap
   - Obstacle
+  - Flag
   layers:
   - Default
   - TransparentFX
