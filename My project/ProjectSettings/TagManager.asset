@@ -10,6 +10,7 @@ TagManager:
   - Trap
   - Obstacle
   - Flag
+  - Boost
   layers:
   - Default
   - TransparentFX
