@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic; // Listを使うために追加
 
 public class PlaceObjectWithRotation : MonoBehaviour
 {
@@ -10,7 +11,11 @@ public class PlaceObjectWithRotation : MonoBehaviour
     [Header("回転設定")]
     [SerializeField] private float rotationAngle = 45f; // 回転角度
 
+    [Header("制限設定")]
+    [SerializeField] private int maxObjects = 2; // 同時に存在できる数
+
     private float currentRotation = 0f; // 現在のプレビュー回転
+    private List<GameObject> spawnedObjects = new List<GameObject>();
 
     void Start()
     {
@@ -45,7 +50,16 @@ public class PlaceObjectWithRotation : MonoBehaviour
         // 左クリックでオブジェクトを配置
         if (Input.GetMouseButtonDown(0))
         {
-            Instantiate(objectPrefab, transform.position, Quaternion.Euler(0f, 0f, currentRotation));
+            // 既に制限数に達していたら一番古いオブジェクトを削除
+            if (spawnedObjects.Count >= maxObjects)
+            {
+                Destroy(spawnedObjects[0]);
+                spawnedObjects.RemoveAt(0);
+            }
+
+            // 新しいオブジェクトを生成してリストに追加
+            GameObject newObj = Instantiate(objectPrefab, transform.position, Quaternion.Euler(0f, 0f, currentRotation));
+            spawnedObjects.Add(newObj);
         }
     }
 }

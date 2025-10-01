@@ -23,6 +23,8 @@ public class Player : MonoBehaviour
     private Vector2 boostStartPos;
     private bool boosting = false;
 
+    private string originalTag; // 元のタグを保持
+
     void Start()
     {
         rbody = GetComponent<Rigidbody2D>();
@@ -31,6 +33,8 @@ public class Player : MonoBehaviour
 
         originalSpeed = speed;
         originalDirection = Vector2.right;
+
+        originalTag = gameObject.tag; // 開始時のタグを保存
     }
 
     void Update()
@@ -77,6 +81,7 @@ public class Player : MonoBehaviour
         if (!boosting)
         {
             boosting = true;
+            gameObject.tag = "Dash"; // タグをDashに変更
             StartCoroutine(BoostCoroutine());
         }
     }
@@ -102,6 +107,7 @@ public class Player : MonoBehaviour
         speed = originalSpeed;
         rbody.velocity = originalDirection * speed;
         boosting = false;
+        gameObject.tag = originalTag; // タグを元に戻す
     }
 
     // 地面に着地したらBoost解除
