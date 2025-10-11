@@ -12,6 +12,7 @@ TagManager:
   - Flag
   - Boost
   - Dash
+  - Death
   layers:
   - Default
   - TransparentFX

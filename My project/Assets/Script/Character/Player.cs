@@ -12,6 +12,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float boostSpeed = 3f;    // 通過時に加算する速度
     [SerializeField] private float boostForce = 10f;   // 瞬間的に飛ばす力
     [SerializeField] private float boostDistance = 3f; // 効果の距離
+    [SerializeField] private LayerMask hitMask;        // Obstacle/Boost を含むレイヤーマスク
 
     private Rigidbody2D rbody;
     private Animator animator;
@@ -69,33 +70,63 @@ public class Player : MonoBehaviour
     {
         if (!collision.CompareTag("Boost")) return;
 
+        // 看板の向いている方向を取得（右向きベクトル）
         boostDir = collision.transform.right.normalized;
         boostStartPos = rbody.position;
 
+        // 看板の向いている方向にのみ Raycast を飛ばす
+        RaycastHit2D hit = Physics2D.Raycast(boostStartPos, boostDir, boostDistance, hitMask);
+
+        float actualDistance = boostDistance;
+        GameObject nextBoost = null;
+
+        if (hit.collider != null)
+        {
+            if (hit.collider.CompareTag("Obstacle"))
+            {
+                // 障害物 → その手前で止まる
+                actualDistance = hit.distance - 0.1f;
+            }
+            else if (hit.collider.CompareTag("Boost"))
+            {
+                // 次の看板 → そこまで進んで再ブースト
+                actualDistance = hit.distance;
+                nextBoost = hit.collider.gameObject;
+            }
+        }
+
         // 瞬間的に飛ばす
         rbody.AddForce(boostDir * boostForce, ForceMode2D.Impulse);
-
-        // 速度加速
         speed += boostSpeed;
 
         if (!boosting)
         {
             boosting = true;
             gameObject.tag = "Dash"; // タグをDashに変更
-            StartCoroutine(BoostCoroutine());
+            StartCoroutine(BoostCoroutine(actualDistance, nextBoost));
         }
     }
 
-    private IEnumerator BoostCoroutine()
+    private IEnumerator BoostCoroutine(float distance, GameObject nextBoost)
     {
         while (boosting)
         {
             rbody.velocity = boostDir.normalized * speed;
 
-            // 一定距離を進んだら元に戻す
-            if (Vector2.Distance(boostStartPos, rbody.position) >= boostDistance)
+            // 指定距離に到達
+            if (Vector2.Distance(boostStartPos, rbody.position) >= distance)
             {
-                ResetBoost();
+                if (nextBoost != null)
+                {
+                    // 次のブースト処理へ
+                    boosting = false;
+                    OnTriggerEnter2D(nextBoost.GetComponent<Collider2D>());
+                }
+                else
+                {
+                    // 通常リセット
+                    ResetBoost();
+                }
             }
 
             yield return new WaitForFixedUpdate();
@@ -110,7 +141,7 @@ public class Player : MonoBehaviour
         gameObject.tag = originalTag; // タグを元に戻す
     }
 
-    // 地面に着地したらBoost解除
+    // 障害物にぶつかったら Boost 強制解除
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Obstacle"))
