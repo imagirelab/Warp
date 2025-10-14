@@ -39,7 +39,7 @@ public class CharacterSpawner : MonoBehaviour
         }
     }
 
-    // ?? シーン全体を最初からリセットする
+    // シーン全体を最初からリセットする
     public void ResetCharacterPosition()
     {
         // 現在のシーン名を取得して再読み込み
