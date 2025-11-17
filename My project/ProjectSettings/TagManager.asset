@@ -13,6 +13,7 @@ TagManager:
   - Boost
   - Dash
   - Death
+  - LifeText
   layers:
   - Default
   - TransparentFX

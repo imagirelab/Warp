@@ -5,14 +5,11 @@ public class CameraStopTrigger : MonoBehaviour
     [Header("í«è]âèúÇ∑ÇÈÉJÉÅÉâ")]
     [SerializeField] private CameraFollow cameraFollow;
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && cameraFollow != null)
         {
-            if (cameraFollow != null)
-            {
-                cameraFollow.StopFollowing();
-            }
+            cameraFollow.StopFollowing();
         }
     }
 }

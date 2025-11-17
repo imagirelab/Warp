@@ -5,14 +5,14 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     [Header("移動設定")]
-    [SerializeField] private float speed = 5f;        // 通常速度
-    [SerializeField] private float jumpP = 300f;      // ジャンプ力
+    [SerializeField] private float speed = 5f;
 
     [Header("Boost設定")]
-    [SerializeField] private float boostSpeed = 3f;    // 通過時に加算する速度
-    [SerializeField] private float boostForce = 10f;   // 瞬間的に飛ばす力
-    [SerializeField] private float boostDistance = 3f; // 効果の距離
-    [SerializeField] private LayerMask hitMask;        // Obstacle/Boost を含むレイヤーマスク
+    [SerializeField] private float boostSpeed = 3f;
+    [SerializeField] private float boostForce = 10f;
+    [SerializeField] private float boostDistance = 3f;
+    [SerializeField] private LayerMask hitMask;
+    [SerializeField] private float bomCheckDistance = 7f;
 
     private Rigidbody2D rbody;
     private Animator animator;
@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
     private Vector2 boostStartPos;
     private bool boosting = false;
 
-    private string originalTag; // 元のタグを保持
+    private string originalTag;
 
     void Start()
     {
@@ -34,16 +34,7 @@ public class Player : MonoBehaviour
 
         originalSpeed = speed;
         originalDirection = Vector2.right;
-
-        originalTag = gameObject.tag; // 開始時のタグを保存
-    }
-
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space) && Mathf.Abs(rbody.velocity.y) < 0.01f)
-        {
-            rbody.AddForce(transform.up * jumpP);
-        }
+        originalTag = gameObject.tag;
     }
 
     void FixedUpdate()
@@ -70,11 +61,10 @@ public class Player : MonoBehaviour
     {
         if (!collision.CompareTag("Boost")) return;
 
-        // 看板の向いている方向を取得（右向きベクトル）
         boostDir = collision.transform.right.normalized;
         boostStartPos = rbody.position;
 
-        // 看板の向いている方向にのみ Raycast を飛ばす
+        // Boost方向にRayを飛ばして距離と次のBoostを確認
         RaycastHit2D hit = Physics2D.Raycast(boostStartPos, boostDir, boostDistance, hitMask);
 
         float actualDistance = boostDistance;
@@ -84,25 +74,23 @@ public class Player : MonoBehaviour
         {
             if (hit.collider.CompareTag("Obstacle"))
             {
-                // 障害物 → その手前で止まる
                 actualDistance = hit.distance - 0.1f;
             }
             else if (hit.collider.CompareTag("Boost"))
             {
-                // 次の看板 → そこまで進んで再ブースト
                 actualDistance = hit.distance;
                 nextBoost = hit.collider.gameObject;
             }
         }
 
-        // 瞬間的に飛ばす
+        // Boost処理開始
         rbody.AddForce(boostDir * boostForce, ForceMode2D.Impulse);
         speed += boostSpeed;
 
         if (!boosting)
         {
             boosting = true;
-            gameObject.tag = "Dash"; // タグをDashに変更
+            gameObject.tag = "Dash"; // Dash状態に変更
             StartCoroutine(BoostCoroutine(actualDistance, nextBoost));
         }
     }
@@ -113,18 +101,15 @@ public class Player : MonoBehaviour
         {
             rbody.velocity = boostDir.normalized * speed;
 
-            // 指定距離に到達
             if (Vector2.Distance(boostStartPos, rbody.position) >= distance)
             {
                 if (nextBoost != null)
                 {
-                    // 次のブースト処理へ
                     boosting = false;
                     OnTriggerEnter2D(nextBoost.GetComponent<Collider2D>());
                 }
                 else
                 {
-                    // 通常リセット
                     ResetBoost();
                 }
             }
@@ -138,18 +123,29 @@ public class Player : MonoBehaviour
         speed = originalSpeed;
         rbody.velocity = originalDirection * speed;
         boosting = false;
-        gameObject.tag = originalTag; // タグを元に戻す
+        gameObject.tag = originalTag; // 元のタグに戻す
     }
 
-    // 障害物にぶつかったら Boost 強制解除
+    // Bomとの衝突処理
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Boost中（Dash状態）は無敵
+        if (boosting && collision.collider.CompareTag("Bom"))
+        {
+            // Bomを上に飛ばす
+            Rigidbody2D bomRb = collision.collider.GetComponent<Rigidbody2D>();
+            if (bomRb != null)
+            {
+                bomRb.velocity = Vector2.up * 20f;
+            }
+            return; // ダメージ無効
+        }
+
+        // Boost中にObstacleに当たったらBoost終了
         if (collision.collider.CompareTag("Obstacle"))
         {
             if (boosting)
-            {
                 ResetBoost();
-            }
         }
     }
 }

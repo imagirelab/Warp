@@ -10,7 +10,7 @@ public class BomTrigger : MonoBehaviour
 
     private bool hasSpawned = false;
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         if (!hasSpawned && other.CompareTag("Player"))
         {

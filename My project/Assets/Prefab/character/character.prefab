@@ -879,13 +879,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
-  jumpP: 300
   boostSpeed: 100
   boostForce: 100
   boostDistance: 5
   hitMask:
     serializedVersion: 2
     m_Bits: 64
+  bomCheckDistance: 20
 --- !u!114 &1478058908430666125
 MonoBehaviour:
   m_ObjectHideFlags: 0

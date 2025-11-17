@@ -1,32 +1,49 @@
 using UnityEngine;
 
-public class ShowObject : MonoBehaviour
+public class ShowObject: MonoBehaviour
 {
-    [SerializeField] private GameObject objectToShow; // 表示するオブジェクト
+    [Header("ゴールしたら表示するオブジェクト群")]
+    [SerializeField] private GameObject[] objectsToShow;
+
+    [Header("ゴールしたら非表示にするオブジェクト群")]
+    [SerializeField] private GameObject[] objectsToHide;
+
+    private bool goalReached = false; // ゴール状態を記録
 
     private void Start()
     {
-        if (objectToShow != null)
-            objectToShow.SetActive(false); // 最初は非表示
+        // 初期状態設定
+        foreach (var obj in objectsToShow)
+        {
+            if (obj != null)
+                obj.SetActive(false);
+        }
+
+        foreach (var obj in objectsToHide)
+        {
+            if (obj != null)
+                obj.SetActive(true);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // 衝突したオブジェクトがプレイヤーか判定
-        if (collision.gameObject.CompareTag("Player"))
+        // プレイヤーに当たったら
+        if (collision.gameObject.CompareTag("Player") && !goalReached)
         {
-            if (objectToShow != null)
-                objectToShow.SetActive(true); // 表示
-        }
-    }
+            goalReached = true;
 
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        // 離れたら非表示にする場合
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            if (objectToShow != null)
-                objectToShow.SetActive(false);
+            foreach (var obj in objectsToShow)
+            {
+                if (obj != null)
+                    obj.SetActive(true); // まとめて表示
+            }
+
+            foreach (var obj in objectsToHide)
+            {
+                if (obj != null)
+                    obj.SetActive(false); // まとめて非表示
+            }
         }
     }
 }
