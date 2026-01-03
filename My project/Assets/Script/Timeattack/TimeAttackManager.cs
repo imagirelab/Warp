@@ -10,24 +10,24 @@ public class TimeAttackManager : MonoBehaviour
 
     private static TimeAttackManager instance;
 
+    // GoalTrigger で使うための公開アクセサ
+    public static TimeAttackManager Instance => instance;
+
+    [Header("シーンが変わったら自動でタイマー開始")]
+    public bool autoStart = true;
+
     void Awake()
     {
-        // シングルトンとして保持（重複生成を防ぐ）
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
-            SceneManager.sceneLoaded += OnSceneLoaded; // シーンロード時に呼ばれるイベント登録
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
             Destroy(gameObject);
         }
-    }
-
-    void Start()
-    {
-        isRunning = true;
     }
 
     void Update()
@@ -41,17 +41,12 @@ public class TimeAttackManager : MonoBehaviour
 
     void UpdateTimeDisplay()
     {
+        if (timeText == null) return;
+
         int minutes = Mathf.FloorToInt(elapsedTime / 60f);
         int seconds = Mathf.FloorToInt(elapsedTime % 60f);
         int milliseconds = Mathf.FloorToInt((elapsedTime * 1000f) % 1000f);
-
-        if (timeText != null)
-            timeText.text = $"{minutes:00}:{seconds:00}.{milliseconds:000}";
-    }
-
-    public void StopTimer()
-    {
-        isRunning = false;
+        timeText.text = $"{minutes:00}:{seconds:00}.{milliseconds:000}";
     }
 
     public void StartTimer()
@@ -59,34 +54,38 @@ public class TimeAttackManager : MonoBehaviour
         isRunning = true;
     }
 
-    public float GetTime()
+    public void StopTimer()
     {
-        return elapsedTime;
+        isRunning = false;
     }
 
     public void ResetTimer()
     {
         elapsedTime = 0f;
+        UpdateTimeDisplay();
     }
 
-    // ?? 新しいシーンがロードされたら自動的にTimeTextを探す
+    public float GetTime()
+    {
+        return elapsedTime;
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // シーン内に「TimeText」という名前のオブジェクトがあれば自動取得
-        var textObj = GameObject.Find("TimeText");
-        if (textObj != null)
+        // 新しいシーンのUIテキスト探す
+        var obj = GameObject.Find("TimeText");
+        if (obj != null)
+            timeText = obj.GetComponent<TextMeshProUGUI>();
+
+        if (autoStart)
         {
-            timeText = textObj.GetComponent<TextMeshProUGUI>();
-        }
-        else
-        {
-            Debug.LogWarning("TimeText が見つかりませんでした。シーン内に存在しません。");
+            ResetTimer();
+            StartTimer();
         }
     }
 
     void OnDestroy()
     {
-        // イベントを解除してメモリリーク防止
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }

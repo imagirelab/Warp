@@ -14,6 +14,9 @@ TagManager:
   - Dash
   - Death
   - LifeText
+  - Bom
+  - TrapSpawn
+  - Boss
   layers:
   - Default
   - TransparentFX

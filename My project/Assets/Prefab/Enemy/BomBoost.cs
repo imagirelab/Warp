@@ -4,16 +4,16 @@ using UnityEngine;
 public class BomBoost : MonoBehaviour
 {
     [Header("Boost設定")]
-    [SerializeField] private float boostSpeed = 3f;       // 通常速度に上乗せされる速度
-    [SerializeField] private float boostForce = 10f;      // ブースト初速
-    [SerializeField] private float boostDistance = 3f;    // 移動距離
-    [SerializeField] private LayerMask hitMask;           // 障害物検知用
-    [SerializeField] private float dashBounceForce = 12f; // Dashに当たったときの上方向跳ね力
+    [SerializeField] private float boostSpeed = 3f;
+    [SerializeField] private float boostForce = 10f;
+    [SerializeField] private float boostDistance = 3f;
+    [SerializeField] private LayerMask hitMask;
+    [SerializeField] private float dashBounceForce = 12f;
 
     private Rigidbody2D rbody;
     private Collider2D col;
-    private bool boosting = false;
 
+    private bool boosting = false;
     private Vector2 boostDir;
     private Vector2 boostStartPos;
 
@@ -25,25 +25,22 @@ public class BomBoost : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!boosting)
-            return;
+        if (!boosting) return;
+
+        // Boost方向に一定速度で移動
+        rbody.velocity = boostDir * boostSpeed;
     }
 
-    // ---- Boostタグ（Trigger）でブースト開始 ----
+    // ---- Boostトリガー（矢印方向対応） ----
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag("Boost"))
-            return;
+        if (!other.CompareTag("Boost")) return;
 
-        StartBoost(other.transform.right.normalized);
-    }
-
-    private void StartBoost(Vector2 direction)
-    {
-        boostDir = direction;
+        // Boostの向きをそのまま採用（→ や ↑ など）
+        boostDir = other.transform.right.normalized;
         boostStartPos = rbody.position;
 
-        // Boost方向にRayを飛ばして距離を確認
+        // 距離と次Boost確認
         RaycastHit2D hit = Physics2D.Raycast(boostStartPos, boostDir, boostDistance, hitMask);
 
         float actualDistance = boostDistance;
@@ -57,52 +54,21 @@ public class BomBoost : MonoBehaviour
                 nextBoost = hit.collider.gameObject;
         }
 
-        // Boost処理開始
         rbody.AddForce(boostDir * boostForce, ForceMode2D.Impulse);
         boosting = true;
 
         StartCoroutine(BoostCoroutine(actualDistance, nextBoost));
     }
 
-    // ---- Dashタグ（Collider）で跳ねる ----
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.collider.CompareTag("Dash"))
-        {
-            // Dashに当たったら自分を一時的にTriggerにして上に上昇
-            StartCoroutine(DashBounceCoroutine());
-        }
-    }
-
-    private IEnumerator DashBounceCoroutine()
-    {
-        // ColliderをTriggerに変更
-        col.isTrigger = true;
-
-        // 上方向に跳ねる
-        rbody.velocity = Vector2.zero;
-        rbody.AddForce(Vector2.up * dashBounceForce, ForceMode2D.Impulse);
-
-        // 少し待ってから元に戻す（0.1秒で十分）
-        yield return new WaitForSeconds(0.1f);
-
-        col.isTrigger = false;
-    }
-
     private IEnumerator BoostCoroutine(float distance, GameObject nextBoost)
     {
-        float speed = boostSpeed;
-
         while (boosting)
         {
-            rbody.velocity = boostDir.normalized * speed;
-
             if (Vector2.Distance(boostStartPos, rbody.position) >= distance)
             {
                 if (nextBoost != null)
                 {
                     boosting = false;
-                    // 次のBoostで再Triggerされるのを待つ
                 }
                 else
                 {
@@ -114,9 +80,32 @@ public class BomBoost : MonoBehaviour
         }
     }
 
+    // ---- Dashタグにぶつかったら上方向に跳ねる ----
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (!collision.collider.CompareTag("Dash")) return;
+
+        StartCoroutine(DashBounceCoroutine());
+    }
+
+    private IEnumerator DashBounceCoroutine()
+    {
+        col.isTrigger = true;
+
+        rbody.velocity = Vector2.zero;
+        rbody.gravityScale = 1f;
+        rbody.AddForce(Vector2.up * dashBounceForce, ForceMode2D.Impulse);
+
+        yield return new WaitForSeconds(0.2f);
+
+        col.isTrigger = false;
+        yield return new WaitForSeconds(0.05f);
+    }
+
     private void ResetBoost()
     {
         boosting = false;
-        rbody.velocity = Vector2.zero;
+        rbody.velocity = new Vector2(0, rbody.velocity.y);
+        rbody.gravityScale = 1f;
     }
 }

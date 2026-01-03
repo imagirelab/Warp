@@ -1,0 +1,11 @@
+using UnityEngine;
+
+public class RotateCounterClockwise : MonoBehaviour
+{
+    [SerializeField] private float rotationSpeed = 360f; // âÒì]ë¨ìx(Åã/ïb)
+
+    private void Update()
+    {
+        transform.Rotate(0, 0, rotationSpeed * Time.deltaTime);
+    }
+}

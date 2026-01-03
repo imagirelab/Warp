@@ -2,23 +2,22 @@ using UnityEngine;
 
 public class BomTrigger : MonoBehaviour
 {
-    [Header("どのスポナーを起動するか設定")]
-    [SerializeField] private BomSpawner linkedSpawner; // Inspectorでペア設定
-
     [Header("一度だけ生成するか")]
     [SerializeField] private bool spawnOnce = true;
+
+    [Header("スポーンに使う BomSpawner（Inspectorで指定）")]
+    [SerializeField] private BomSpawner linkedSpawner;
 
     private bool hasSpawned = false;
 
     private void OnTriggerStay2D(Collider2D other)
     {
-        if (!hasSpawned && other.CompareTag("Player"))
+        if (!hasSpawned && other.CompareTag("Player") && linkedSpawner != null)
         {
-            if (linkedSpawner != null)
-            {
-                linkedSpawner.SpawnBomb();
-                if (spawnOnce) hasSpawned = true;
-            }
+            linkedSpawner.SpawnBomb();
+
+            if (spawnOnce)
+                hasSpawned = true;
         }
     }
 }

@@ -126,19 +126,29 @@ public class Player : MonoBehaviour
         gameObject.tag = originalTag; // 元のタグに戻す
     }
 
-    // Bomとの衝突処理
+    // 衝突処理
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // Boost中（Dash状態）は無敵
-        if (boosting && collision.collider.CompareTag("Bom"))
+        if (boosting)
         {
-            // Bomを上に飛ばす
-            Rigidbody2D bomRb = collision.collider.GetComponent<Rigidbody2D>();
-            if (bomRb != null)
+            // Bomに当たったら右斜め上に飛ばす
+            if (collision.collider.CompareTag("Bom"))
             {
-                bomRb.velocity = Vector2.up * 20f;
+                Rigidbody2D bomRb = collision.collider.GetComponent<Rigidbody2D>();
+                if (bomRb != null)
+                {
+                    Vector2 bounceDir = new Vector2(1f, 1f).normalized;
+                    float force = 20f;
+                    bomRb.velocity = bounceDir * force;
+                }
+                return; // 無敵状態なのでダメージ無効
             }
-            return; // ダメージ無効
+
+            // Flagに当たったら無敵（何もしない）
+            if (collision.collider.CompareTag("Flag"))
+            {
+                return; // 無敵状態
+            }
         }
 
         // Boost中にObstacleに当たったらBoost終了

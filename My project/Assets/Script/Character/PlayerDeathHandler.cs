@@ -75,6 +75,7 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void TryRespawn()
     {
+        Stage.ResetSpawnFlag();
         if (spawner == null) return;
 
         lifeCount--;
