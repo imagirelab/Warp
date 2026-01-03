@@ -14,6 +14,16 @@ public class Player : MonoBehaviour
     [SerializeField] private LayerMask hitMask;
     [SerializeField] private float bomCheckDistance = 7f;
 
+    [Header("効果音")]
+    [SerializeField] private AudioSource seSource;
+    [SerializeField] private AudioClip jumpSE;
+    [SerializeField] private AudioClip boostSE;
+    [SerializeField] private AudioClip footstep1;
+    [SerializeField] private AudioClip footstep2;
+
+    [Header("足音設定")]
+    [SerializeField] private float footstepInterval = 0.35f;
+
     private Rigidbody2D rbody;
     private Animator animator;
 
@@ -26,11 +36,17 @@ public class Player : MonoBehaviour
 
     private string originalTag;
 
+    // ジャンプ判定
+    private bool wasGrounded = true;
+
+    // 足音用
+    private Coroutine footstepCoroutine;
+    private bool footToggle = false;
+
     void Start()
     {
         rbody = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        transform.rotation = Quaternion.Euler(0, 0, 0);
 
         originalSpeed = speed;
         originalDirection = Vector2.right;
@@ -44,27 +60,43 @@ public class Player : MonoBehaviour
             rbody.velocity = new Vector2(speed, rbody.velocity.y);
         }
 
-        // アニメーション判定
-        if (Mathf.Abs(rbody.velocity.y) > 0.01f)
+        bool isGrounded = Mathf.Abs(rbody.velocity.y) < 0.01f;
+        bool isRunning = isGrounded && !boosting;
+
+        // ジャンプ開始SE
+        if (!isGrounded && wasGrounded)
         {
-            animator.SetBool("isJumping", true);
-            animator.SetBool("isRunning", false);
+            seSource.PlayOneShot(jumpSE);
         }
-        else
-        {
-            animator.SetBool("isJumping", false);
-            animator.SetBool("isRunning", true);
-        }
+
+        wasGrounded = isGrounded;
+
+        // アニメーション制御
+        animator.SetBool("isJumping", !isGrounded);
+        animator.SetBool("isRunning", isRunning);
+
+        // 足音ループ制御
+        //if (isRunning && footstepCoroutine == null)
+        //{
+        //    footstepCoroutine = StartCoroutine(FootstepLoop());
+        //}
+        //else if (!isRunning && footstepCoroutine != null)
+        //{
+        //    StopCoroutine(footstepCoroutine);
+        //    footstepCoroutine = null;
+        //}
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (!collision.CompareTag("Boost")) return;
 
+        // Boost効果音
+        seSource.PlayOneShot(boostSE);
+
         boostDir = collision.transform.right.normalized;
         boostStartPos = rbody.position;
 
-        // Boost方向にRayを飛ばして距離と次のBoostを確認
         RaycastHit2D hit = Physics2D.Raycast(boostStartPos, boostDir, boostDistance, hitMask);
 
         float actualDistance = boostDistance;
@@ -83,14 +115,13 @@ public class Player : MonoBehaviour
             }
         }
 
-        // Boost処理開始
         rbody.AddForce(boostDir * boostForce, ForceMode2D.Impulse);
         speed += boostSpeed;
 
         if (!boosting)
         {
             boosting = true;
-            gameObject.tag = "Dash"; // Dash状態に変更
+            gameObject.tag = "Dash";
             StartCoroutine(BoostCoroutine(actualDistance, nextBoost));
         }
     }
@@ -123,15 +154,13 @@ public class Player : MonoBehaviour
         speed = originalSpeed;
         rbody.velocity = originalDirection * speed;
         boosting = false;
-        gameObject.tag = originalTag; // 元のタグに戻す
+        gameObject.tag = originalTag;
     }
 
-    // 衝突処理
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (boosting)
         {
-            // Bomに当たったら右斜め上に飛ばす
             if (collision.collider.CompareTag("Bom"))
             {
                 Rigidbody2D bomRb = collision.collider.GetComponent<Rigidbody2D>();
@@ -141,21 +170,35 @@ public class Player : MonoBehaviour
                     float force = 20f;
                     bomRb.velocity = bounceDir * force;
                 }
-                return; // 無敵状態なのでダメージ無効
+                return;
             }
 
-            // Flagに当たったら無敵（何もしない）
             if (collision.collider.CompareTag("Flag"))
             {
-                return; // 無敵状態
+                return;
             }
         }
 
-        // Boost中にObstacleに当たったらBoost終了
         if (collision.collider.CompareTag("Obstacle"))
         {
             if (boosting)
                 ResetBoost();
         }
     }
+
+    // ===== 足音ループ =====
+    //private IEnumerator FootstepLoop()
+    //{
+    //    while (true)
+    //    {
+    //        footToggle = !footToggle;
+
+    //        if (footToggle)
+    //            seSource.PlayOneShot(footstep1);
+    //        else
+    //            seSource.PlayOneShot(footstep2);
+
+    //        yield return new WaitForSeconds(footstepInterval);
+    //    }
+    //}
 }

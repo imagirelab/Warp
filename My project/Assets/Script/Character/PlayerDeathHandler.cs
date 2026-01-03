@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
 
@@ -5,27 +6,29 @@ public class PlayerDeathHandler : MonoBehaviour
 {
     private CharacterSpawner spawner;
 
-    private static int lifeCount = -1; // 初期値を -1 にしてAwakeで設定
+    private static int lifeCount = -1;
     private const int MaxLives = 2;
 
     private TextMeshProUGUI lifeText;
     private GameObject gameOverUI;
 
+    [Header("リスポーン遅延")]
+    [SerializeField] private float respawnDelay = 0.8f;
+
+    private bool isDead = false;
+
     private void Awake()
     {
-        // lifeCount が未初期化なら初期値にする
         if (lifeCount < 0)
             lifeCount = MaxLives;
     }
 
     private void Start()
     {
-        // GameOverUI を探す
         gameOverUI = GameObject.Find("GameOver");
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
 
-        // LifeText を探す
         var obj = GameObject.Find("LifeText");
         if (obj != null)
             lifeText = obj.GetComponent<TextMeshProUGUI>();
@@ -38,20 +41,20 @@ public class PlayerDeathHandler : MonoBehaviour
         this.spawner = spawner;
     }
 
-    // --- Death判定（Trigger）
+    // --- Death（Trigger）
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Death"))
-            TryRespawn();
+            StartDeathProcess();
     }
 
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.CompareTag("Death"))
-            TryRespawn();
+            StartDeathProcess();
     }
 
-    // --- Bomとの接触（Collision）
+    // --- Bom（Collision）
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.CompareTag("Bom"))
@@ -64,27 +67,46 @@ public class PlayerDeathHandler : MonoBehaviour
             TryRespawnIfNotBoosting();
     }
 
-    // ? Boost中ならBom衝突を無視
+    // Boost中ならBom無視
     private void TryRespawnIfNotBoosting()
     {
         if (CompareTag("Boost") || CompareTag("Dash"))
-            return; // Boost中は無敵
+            return;
 
-        TryRespawn();
+        StartDeathProcess();
     }
 
-    private void TryRespawn()
+    // ===== 死亡処理開始 =====
+    private void StartDeathProcess()
     {
+        if (isDead) return;
+        isDead = true;
+
+        StartCoroutine(DeathCoroutine());
+    }
+
+    private IEnumerator DeathCoroutine()
+    {
+        // ここで死亡SE・アニメ・エフェクトを入れられる
+        yield return new WaitForSeconds(respawnDelay);
+
         Stage.ResetSpawnFlag();
-        if (spawner == null) return;
+
+        if (spawner == null)
+            yield break;
 
         lifeCount--;
         UpdateLifeDisplay();
 
         if (lifeCount <= 0)
+        {
             GameOver();
+        }
         else
+        {
             spawner.ResetCharacterPosition();
+            isDead = false;
+        }
     }
 
     private void GameOver()
@@ -94,7 +116,6 @@ public class PlayerDeathHandler : MonoBehaviour
         if (gameOverUI != null)
             gameOverUI.SetActive(true);
 
-        // ゲームオーバー時に残機を初期値に戻す
         lifeCount = MaxLives;
         UpdateLifeDisplay();
     }
