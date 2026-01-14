@@ -11,12 +11,9 @@ GameObject:
   - component: {fileID: 6304383351500049618}
   - component: {fileID: 6304383351500049619}
   - component: {fileID: 6304383351500049623}
-  - component: {fileID: 6304383351500049620}
   - component: {fileID: 6304383351500049621}
-  - component: {fileID: 4762438203918159746}
-  - component: {fileID: 3359951042634316315}
   m_Layer: 0
-  m_Name: Pupil 512
+  m_Name: 3-Trap
   m_TagString: TrapSpawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,18 +112,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.48, y: 0.48}
   m_EdgeRadius: 0
---- !u!114 &6304383351500049620
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6304383351500050221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90554da00039ff746bae0121f5a51289, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!50 &6304383351500049621
 Rigidbody2D:
   serializedVersion: 4
@@ -148,31 +133,3 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &4762438203918159746
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6304383351500050221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1bacf5cc84a30d143afac62dbc613ff6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  bombPrefab: {fileID: 2180468764268344936, guid: 0caa07f9c896d1d418a9d776cb16516b, type: 3}
---- !u!114 &3359951042634316315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6304383351500050221}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: feebb968daf8b664fb147570c27e33db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cutterPrefab: {fileID: 831966045560891443, guid: 4e605cfcd98b9c2468f32c6927ba4868, type: 3}
-  moveUpAmount: 2
-  moveDuration: 0.5

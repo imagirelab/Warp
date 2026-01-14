@@ -12,12 +12,17 @@ public class Player : MonoBehaviour
     [SerializeField] private float boostForce = 10f;
     [SerializeField] private float boostDistance = 3f;
     [SerializeField] private LayerMask hitMask;
-    [SerializeField] private float bomCheckDistance = 7f;
+
+    [Header("接地判定")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckDistance = 0.1f;
+    [SerializeField] private LayerMask Obstacle;
 
     [Header("効果音")]
     [SerializeField] private AudioSource seSource;
     [SerializeField] private AudioClip jumpSE;
     [SerializeField] private AudioClip boostSE;
+    [SerializeField] private AudioClip boostBomSE;
     [SerializeField] private AudioClip footstep1;
     [SerializeField] private AudioClip footstep2;
 
@@ -36,10 +41,8 @@ public class Player : MonoBehaviour
 
     private string originalTag;
 
-    // ジャンプ判定
     private bool wasGrounded = true;
 
-    // 足音用
     private Coroutine footstepCoroutine;
     private bool footToggle = false;
 
@@ -60,10 +63,10 @@ public class Player : MonoBehaviour
             rbody.velocity = new Vector2(speed, rbody.velocity.y);
         }
 
-        bool isGrounded = Mathf.Abs(rbody.velocity.y) < 0.01f;
+        bool isGrounded = IsGrounded();
         bool isRunning = isGrounded && !boosting;
 
-        // ジャンプ開始SE
+        // ★ 地面が無い状態に入った瞬間だけジャンプSE
         if (!isGrounded && wasGrounded)
         {
             seSource.PlayOneShot(jumpSE);
@@ -71,20 +74,21 @@ public class Player : MonoBehaviour
 
         wasGrounded = isGrounded;
 
-        // アニメーション制御
+        // アニメーション
         animator.SetBool("isJumping", !isGrounded);
         animator.SetBool("isRunning", isRunning);
+    }
 
-        // 足音ループ制御
-        //if (isRunning && footstepCoroutine == null)
-        //{
-        //    footstepCoroutine = StartCoroutine(FootstepLoop());
-        //}
-        //else if (!isRunning && footstepCoroutine != null)
-        //{
-        //    StopCoroutine(footstepCoroutine);
-        //    footstepCoroutine = null;
-        //}
+    private bool IsGrounded()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(
+            groundCheck.position,
+            Vector2.down,
+            groundCheckDistance,
+            Obstacle
+        );
+
+        return hit.collider != null;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -97,7 +101,12 @@ public class Player : MonoBehaviour
         boostDir = collision.transform.right.normalized;
         boostStartPos = rbody.position;
 
-        RaycastHit2D hit = Physics2D.Raycast(boostStartPos, boostDir, boostDistance, hitMask);
+        RaycastHit2D hit = Physics2D.Raycast(
+            boostStartPos,
+            boostDir,
+            boostDistance,
+            hitMask
+        );
 
         float actualDistance = boostDistance;
         GameObject nextBoost = null;
@@ -161,8 +170,14 @@ public class Player : MonoBehaviour
     {
         if (boosting)
         {
+            // ★ Boost中にBomに当たった時
             if (collision.collider.CompareTag("Bom"))
             {
+                if (boostBomSE != null)
+                {
+                    seSource.PlayOneShot(boostBomSE);
+                }
+
                 Rigidbody2D bomRb = collision.collider.GetComponent<Rigidbody2D>();
                 if (bomRb != null)
                 {
@@ -170,15 +185,18 @@ public class Player : MonoBehaviour
                     float force = 20f;
                     bomRb.velocity = bounceDir * force;
                 }
+
                 return;
             }
 
+            // Flagは無敵
             if (collision.collider.CompareTag("Flag"))
             {
                 return;
             }
         }
 
+        // Obstacleに当たったらBoost終了
         if (collision.collider.CompareTag("Obstacle"))
         {
             if (boosting)
@@ -186,19 +204,21 @@ public class Player : MonoBehaviour
         }
     }
 
-    // ===== 足音ループ =====
-    //private IEnumerator FootstepLoop()
-    //{
-    //    while (true)
-    //    {
-    //        footToggle = !footToggle;
+    // ===== 足音ループ（必要なら復活）=====
+    /*
+    private IEnumerator FootstepLoop()
+    {
+        while (true)
+        {
+            footToggle = !footToggle;
 
-    //        if (footToggle)
-    //            seSource.PlayOneShot(footstep1);
-    //        else
-    //            seSource.PlayOneShot(footstep2);
+            if (footToggle)
+                seSource.PlayOneShot(footstep1);
+            else
+                seSource.PlayOneShot(footstep2);
 
-    //        yield return new WaitForSeconds(footstepInterval);
-    //    }
-    //}
+            yield return new WaitForSeconds(footstepInterval);
+        }
+    }
+    */
 }
