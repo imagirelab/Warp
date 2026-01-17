@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Stage : MonoBehaviour
 {
@@ -6,9 +7,28 @@ public class Stage : MonoBehaviour
 
     private static bool hasSpawned = false;
 
+    private void Awake()
+    {
+        // ★ シーン切り替え時に呼ばれるイベント登録
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        // ★ イベント解除（重要）
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
     private void Start()
     {
         TrySpawn();
+    }
+
+    // ===== シーンロード時 =====
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // ★ シーン切り替えで必ずリセット
+        hasSpawned = false;
     }
 
     // 生成処理

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class PlayerDeathHandler : MonoBehaviour
@@ -11,6 +12,7 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private TextMeshProUGUI lifeText;
     private GameObject gameOverUI;
+    private GameObject titleUI;
 
     [Header("リスポーン遅延")]
     [SerializeField] private float respawnDelay = 0.8f;
@@ -25,10 +27,17 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void Start()
     {
+        // GameOver UI
         gameOverUI = GameObject.Find("GameOver");
         if (gameOverUI != null)
             gameOverUI.SetActive(false);
 
+        // TITLE UI
+        titleUI = GameObject.Find("TITLE (1)");
+        if (titleUI != null)
+            titleUI.SetActive(false);
+
+        // Life 表示
         var obj = GameObject.Find("LifeText");
         if (obj != null)
             lifeText = obj.GetComponent<TextMeshProUGUI>();
@@ -87,7 +96,7 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private IEnumerator DeathCoroutine()
     {
-        // ここで死亡SE・アニメ・エフェクトを入れられる
+        // 死亡演出待ち
         yield return new WaitForSeconds(respawnDelay);
 
         Stage.ResetSpawnFlag();
@@ -109,15 +118,50 @@ public class PlayerDeathHandler : MonoBehaviour
         }
     }
 
+    // ===== GameOver =====
     private void GameOver()
     {
         Time.timeScale = 0f;
 
+        // ★ 親を含めて強制的に表示
+        ForceShow(gameOverUI);
+        ForceShow(titleUI);
+
         if (gameOverUI != null)
             gameOverUI.SetActive(true);
 
+        if (titleUI != null)
+            titleUI.SetActive(true);
+
+        // ★ LifeText を非表示
+        if (lifeText != null)
+            lifeText.gameObject.SetActive(false);
+
+        // 次回用にライフ初期化
         lifeCount = MaxLives;
-        UpdateLifeDisplay();
+    }
+
+
+    // ★ 親を遡ってすべて ON にする
+    private void ForceShow(GameObject target)
+    {
+        if (target == null) return;
+
+        Transform t = target.transform;
+        while (t != null)
+        {
+            if (!t.gameObject.activeSelf)
+                t.gameObject.SetActive(true);
+
+            t = t.parent;
+        }
+    }
+
+    // ★ TITLEボタンから呼ぶ
+    public void ReturnToTitle()
+    {
+        Time.timeScale = 1f;   // timeScale戻し忘れ防止
+        SceneManager.LoadScene("Title");
     }
 
     private void UpdateLifeDisplay()

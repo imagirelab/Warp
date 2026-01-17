@@ -5,11 +5,14 @@ public class PauseController : MonoBehaviour
     private bool isPaused = false; // 現在のポーズ状態
 
     [SerializeField] private GameObject pauseUI; // ポーズ時に表示するUI
+    [SerializeField] private GameObject TitleBotton; // ポーズ時に表示するUI
 
     void Start()
     {
         if (pauseUI != null)
             pauseUI.SetActive(false); // 最初は非表示
+        if (TitleBotton != null)
+            TitleBotton.SetActive(false);
     }
 
     void Update()
@@ -30,6 +33,8 @@ public class PauseController : MonoBehaviour
         isPaused = true;
         if (pauseUI != null)
             pauseUI.SetActive(true); // ポーズUI表示
+        if (TitleBotton != null)
+            TitleBotton.SetActive(true); // ポーズUI表示
     }
 
     void ResumeGame()
@@ -38,5 +43,7 @@ public class PauseController : MonoBehaviour
         isPaused = false;
         if (pauseUI != null)
             pauseUI.SetActive(false); // ポーズUI非表示
+        if (TitleBotton != null)
+            TitleBotton.SetActive(false); // ポーズUI非表示
     }
 }
