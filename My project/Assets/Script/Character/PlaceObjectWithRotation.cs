@@ -14,13 +14,26 @@ public class PlaceObjectWithRotation : MonoBehaviour
     [Header("制限設定")]
     [SerializeField] private int maxObjects = 2; // 同時に存在できる数
 
+    [Header("サウンド")]
+    [SerializeField] private AudioClip placeSE; // 設置音
+    [SerializeField] private float seVolume = 1f;
+
     private float currentRotation = 0f; // 現在のプレビュー回転
     private List<GameObject> spawnedObjects = new List<GameObject>();
+
+    private AudioSource audioSource;
 
     void Start()
     {
         if (mainCamera == null)
             mainCamera = Camera.main;
+
+        // AudioSource準備
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
+
+        audioSource.playOnAwake = false;
     }
 
     void Update()
@@ -32,11 +45,11 @@ public class PlaceObjectWithRotation : MonoBehaviour
 
         // --- マウスホイールで回転 ---
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (scroll > 0f) // 上スクロール
+        if (scroll > 0f)
         {
             currentRotation += rotationAngle;
         }
-        else if (scroll < 0f) // 下スクロール
+        else if (scroll < 0f)
         {
             currentRotation -= rotationAngle;
         }
@@ -57,9 +70,20 @@ public class PlaceObjectWithRotation : MonoBehaviour
                 spawnedObjects.RemoveAt(0);
             }
 
-            // 新しいオブジェクトを生成してリストに追加
-            GameObject newObj = Instantiate(objectPrefab, transform.position, Quaternion.Euler(0f, 0f, currentRotation));
+            // 新しいオブジェクトを生成
+            GameObject newObj = Instantiate(
+                objectPrefab,
+                transform.position,
+                Quaternion.Euler(0f, 0f, currentRotation)
+            );
+
             spawnedObjects.Add(newObj);
+
+            // ★ 設置音を鳴らす
+            if (placeSE != null)
+            {
+                audioSource.PlayOneShot(placeSE, seVolume);
+            }
         }
     }
 }

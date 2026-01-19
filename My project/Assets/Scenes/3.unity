@@ -4002,7 +4002,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 584587181}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 137.77, y: 0.68, z: -0.36835587}
+  m_LocalPosition: {x: 141.92, y: 0.68, z: -0.36835587}
   m_LocalScale: {x: 5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5949,7 +5949,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &909038502
 Transform:
   m_ObjectHideFlags: 0
@@ -7467,7 +7467,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 239, y: 177.39996}
+  m_AnchoredPosition: {x: 243, y: 188}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1164762457
@@ -7607,7 +7607,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 264, y: 180.3}
+  m_AnchoredPosition: {x: 268, y: 190.90004}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1185217804
@@ -7742,7 +7742,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 119, y: 181.39996}
+  m_AnchoredPosition: {x: 122.99999, y: 192}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1192257167
@@ -9876,7 +9876,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 373, y: 180.29999}
+  m_AnchoredPosition: {x: 301, y: 190.90002}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!4 &1614331611 stripped
@@ -9959,7 +9959,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 800, y: 600}
@@ -10852,6 +10852,8 @@ MonoBehaviour:
   offset: {x: 0, y: 0, z: 0}
   rotationAngle: 45
   maxObjects: 2
+  placeSE: {fileID: 8300000, guid: 4e34b5adb01343f42b0911bccb1c1a91, type: 3}
+  seVolume: 0.5
 --- !u!212 &1846424999
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -12599,9 +12601,7 @@ MonoBehaviour:
   - {fileID: 412992473}
   - {fileID: 1874960741}
   - {fileID: 1649986822}
-  objectsToHide:
-  - {fileID: 1604935311}
-  - {fileID: 1185217802}
+  objectsToHide: []
 --- !u!114 &2037244226
 MonoBehaviour:
   m_ObjectHideFlags: 0
