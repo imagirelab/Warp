@@ -14034,7 +14034,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseUI: {fileID: 518894685}
-  TitleBotton: {fileID: 1199561491}
+  TitleBotton: {fileID: 139050448}
 --- !u!4 &1723057778
 Transform:
   m_ObjectHideFlags: 0
