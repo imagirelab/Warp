@@ -1663,7 +1663,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 518894685}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.037026882, y: 0.43029594, z: 10}
+  m_LocalPosition: {x: 0.037026882, y: 1.55, z: 10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3844,10 +3844,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b8f1132a86c2743b2a0455f42496b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHP: 200
+  maxHP: 100
   hpSlider: {fileID: 1321322443}
   spawnPrefab: {fileID: 1896441715}
   spawnDistance: 20
+  targetScriptName: ThwompMove
+  phase2HPThreshold: 100
 --- !u!1 &1723057776
 GameObject:
   m_ObjectHideFlags: 0
@@ -3878,6 +3880,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pauseUI: {fileID: 518894685}
+  TitleBotton: {fileID: 133157581}
 --- !u!4 &1723057778
 Transform:
   m_ObjectHideFlags: 0
