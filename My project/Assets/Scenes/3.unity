@@ -12601,7 +12601,8 @@ MonoBehaviour:
   - {fileID: 412992473}
   - {fileID: 1874960741}
   - {fileID: 1649986822}
-  objectsToHide: []
+  objectsToHide:
+  - {fileID: 1185217802}
 --- !u!114 &2037244226
 MonoBehaviour:
   m_ObjectHideFlags: 0

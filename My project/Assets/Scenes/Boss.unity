@@ -4398,8 +4398,8 @@ MonoBehaviour:
   objectsToShow:
   - {fileID: 412992473}
   - {fileID: 373690613}
-  - {fileID: 0}
-  objectsToHide: []
+  objectsToHide:
+  - {fileID: 1185217802}
 --- !u!4 &1896441721 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7436829278213299183, guid: e039ae35b978fb14d882c61e33a019bd, type: 3}
